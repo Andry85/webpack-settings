@@ -1,0 +1,18 @@
+@import 'fonts';
+@import 'reset';
+@import 'sprites';
+body {
+    background: #ccc;
+    font-size: 20px;
+    font-family: "Roboto";
+    background: url(map-get($sprites, 'close')) center no-repeat;
+    background-size: 10px 10px;
+
+}
+.not-found {
+    background: url(../images/001.jpg) no-repeat;
+    width: 400px;
+    height: 400px;
+    display: flex;
+    justify-content: space-between;
+}
