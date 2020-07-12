@@ -6,169 +6,194 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const SVGSpritemapPlugin = require('svg-spritemap-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const TerserJSPlugin = require('terser-webpack-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 
-module.exports = {
-  optimization: {
-    splitChunks: {
-      // include all types of chunks
-      chunks: 'all',
-      cacheGroups: {
-        defaultVendors: {
-          filename: 'js/[name].bundle.js'
-        }
-      }
-    }
-  },
-  mode: 'development',
-  devtool: 'inline-source-map',
-  entry: {
-         index: './src/js/index.js',
-         print: './src/js/print.js',
-  },
-  output: {
-    filename: 'js/[name].[contenthash].js',
-    path: path.resolve(__dirname, 'dist'),
-  },
-  plugins: [
-    new SVGSpritemapPlugin('src/images/svgsprite/**/*.svg', {
-        output: {
-            filename: 'images/svgsprite.svg',
-            svg: {
-                // Disable `width` and `height` attributes on the root SVG element
-                // as these will skew the sprites when using the <view> via fragment identifiers
-                sizes: false
-            }
-        },
-        sprite: {
-            generate: {
-                // Generate <use> tags within the spritemap as the <view> tag will use this
-                use: true,
 
-                // Generate <view> tags within the svg to use in css via fragment identifier url
-                // and add -fragment suffix for the identifier to prevent naming colissions with the symbol identifier
-                view: '-fragment',
 
-                // Generate <symbol> tags within the SVG to use in HTML via <use> tag
-                symbol: true
-            },
-        },
-        styles: {
-            // Specifiy that we want to use URLs with fragment identifiers in a styles file as well
-            format: 'fragment',
+module.exports = (env = {}) => {
+  console.log(env);
 
-            // Path to the styles file, note that this method uses the `output.publicPath` webpack option
-            // to generate the path/URL to the spritemap itself so you might have to look into that
-            filename: path.join(__dirname, 'src/sass/_sprites.scss')
-        }
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: 'src/inc',
-          to: 'inc',
-        }
-      ],
-    }),
-    new MiniCssExtractPlugin(
+  const {mode = 'development'} = env;
+
+  const isProd = mode == 'production';
+  const isDev = mode == 'development';
+
+  const getStyleLoader = () => {
+    return isProd ? 
       {
-        filename: 'css/[name].css',
-        chunkFilename: '[id].css',
+        loader: MiniCssExtractPlugin.loader,
+        options: {
+          publicPath: '../',
+          sourceMap: true,
+        }
+      } : {
+        loader: 'style-loader',
       }
-    ),
-    new ManifestPlugin(),
-    new CleanWebpackPlugin({ 
-      cleanStaleWebpackAssets: false 
-    }),
-    new HtmlWebpackPlugin({  // Also generate a test.html
-      filename: 'index.html',
-      template: 'src/index.html',
-      minify: false,
-      hash: true
-    }), // Generates default index.html
-    new HtmlWebpackPlugin({  // Also generate a test.html
-      filename: 'contacts.html',
-      template: 'src/contacts.html',
-      minify: false,
-      hash: true
-    }),
-  ],
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    compress: true,
-    port: 9000
-  },
-  module: {
-    rules: [
-              {
-                test: /\.m?js$/,
-                exclude: /(node_modules|bower_components)/,
-                use: {
-                  loader: 'babel-loader',
-                  options: {
-                    presets: [
-                      '@babel/preset-env',
-                      '@babel/preset-react'
-                  ]
-                  }
-                }
+  }
+
+  return { 
+    optimization: {
+      splitChunks: {
+        // include all types of chunks
+        chunks: 'all',
+        cacheGroups: {
+          defaultVendors: {
+            filename: 'js/[name].bundle.js'
+          }
+        }
+      },
+      minimize: true,
+      minimizer: [new TerserJSPlugin({
+        sourceMap: true,
+      }), new OptimizeCSSAssetsPlugin({})],
+    },
+    mode: isProd ? 'production' : isDev && 'development',
+    devtool: 'inline-source-map',
+    entry: {
+          index: './src/js/index.js',
+    },
+    output: {
+      filename: 'js/[name].[contenthash].js',
+      path: path.resolve(__dirname, 'dist'),
+    },
+    plugins: [
+      new SVGSpritemapPlugin('src/images/svgsprite/**/*.svg', {
+          output: {
+              filename: 'images/svgsprite.svg',
+              svg: {
+                  // Disable `width` and `height` attributes on the root SVG element
+                  // as these will skew the sprites when using the <view> via fragment identifiers
+                  sizes: false
+              }
+          },
+          sprite: {
+              generate: {
+                  // Generate <use> tags within the spritemap as the <view> tag will use this
+                  use: true,
+
+                  // Generate <view> tags within the svg to use in css via fragment identifier url
+                  // and add -fragment suffix for the identifier to prevent naming colissions with the symbol identifier
+                  view: '-fragment',
+
+                  // Generate <symbol> tags within the SVG to use in HTML via <use> tag
+                  symbol: true
               },
-             {
-              test: /\.s[ac]ss$/i,
-              use: [
+          },
+          styles: {
+              // Specifiy that we want to use URLs with fragment identifiers in a styles file as well
+              format: 'fragment',
+
+              // Path to the styles file, note that this method uses the `output.publicPath` webpack option
+              // to generate the path/URL to the spritemap itself so you might have to look into that
+              filename: path.join(__dirname, 'src/sass/_sprites.scss')
+          }
+      }),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: 'src/inc',
+            to: 'inc',
+          }
+        ],
+      }),
+      new MiniCssExtractPlugin(
+        {
+          filename: isDev ? 'css/[name].css' : 'css/[name].[hash].css',
+        }
+      ),
+      new ManifestPlugin(),
+      new CleanWebpackPlugin({ 
+        cleanStaleWebpackAssets: false 
+      }),
+      new HtmlWebpackPlugin({  // Also generate a test.html
+        filename: 'index.html',
+        template: 'src/index.html',
+        minify: false,
+        hash: true
+      }), // Generates default index.html
+      new HtmlWebpackPlugin({  // Also generate a test.html
+        filename: 'contacts.html',
+        template: 'src/contacts.html',
+        minify: false,
+        hash: true
+      }),
+    ],
+    devServer: {
+      open: true,
+      contentBase: path.join(__dirname, 'dist'),
+      compress: true,
+      port: 9000
+    },
+    module: {
+      rules: [
                 {
-                  loader: MiniCssExtractPlugin.loader,
-                  options: {
-                    publicPath: '../'
+                  test: /\.m?js$/,
+                  exclude: /(node_modules|bower_components)/,
+                  use: {
+                    loader: 'babel-loader',
+                    options: {
+                      presets: [
+                        '@babel/preset-env',
+                        '@babel/preset-react'
+                    ]
+                    }
                   }
                 },
-                {
-                  loader: 'css-loader',
-                  options: {
-                    sourceMap: true,
-                  },
-                },
-                {
-                  loader: 'resolve-url-loader',
-                },
-                {
-                    loader: 'postcss-loader',
+              {
+                test: /\.s[ac]ss$/i,
+                use: [
+                  getStyleLoader(),
+                  {
+                    loader: 'css-loader',
                     options: {
-                        sourceMap: true
-                    }
-                },
-                {
-                  loader: 'sass-loader',
-                  options: {
-                    sourceMap: true,
+                      sourceMap: true,
+                    },
                   },
-                },
-              ],
-            },
-            {
-              test: /\.(png|jpe?g|gif)$/i,
-              use: [
-                {
-                  loader: 'file-loader',
-                  options: {
-                    name: '[name].[ext]',
-                    outputPath: 'images',
+                  {
+                    loader: 'resolve-url-loader',
                   },
-                },
-              ],
-            },
-            {
-                test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
+                  {
+                      loader: 'postcss-loader',
+                      options: {
+                          sourceMap: true
+                      }
+                  },
+                  {
+                    loader: 'sass-loader',
+                    options: {
+                      sourceMap: true,
+                    },
+                  },
+                ],
+              },
+              {
+                test: /\.(png|jpe?g|gif)$/i,
                 use: [
                   {
                     loader: 'file-loader',
                     options: {
                       name: '[name].[ext]',
-                      outputPath: 'fonts',
+                      outputPath: 'images',
                     },
                   },
                 ],
-            },
-    ],
-  },
+              },
+              {
+                  test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
+                  use: [
+                    {
+                      loader: 'file-loader',
+                      options: {
+                        name: '[name].[ext]',
+                        outputPath: 'fonts',
+                      },
+                    },
+                  ],
+              },
+      ],
+    },
+
+  };  
 };
