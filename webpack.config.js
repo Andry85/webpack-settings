@@ -107,13 +107,12 @@ module.exports = (env = {}) => {
       new CleanWebpackPlugin({ 
         cleanStaleWebpackAssets: false 
       }),
-      new HtmlWebpackPlugin({  // Also generate a test.html
-        filename: 'index.html',
+      new HtmlWebpackPlugin({
         template: 'src/index.html',
         minify: false,
         hash: true
       }), // Generates default index.html
-      new HtmlWebpackPlugin({  // Also generate a test.html
+      new HtmlWebpackPlugin({
         filename: 'contacts.html',
         template: 'src/contacts.html',
         minify: false,
@@ -137,7 +136,8 @@ module.exports = (env = {}) => {
                       presets: [
                         '@babel/preset-env',
                         '@babel/preset-react'
-                    ]
+                      ],
+                      plugins: ['@babel/plugin-transform-runtime', "@babel/plugin-proposal-class-properties"]
                     }
                   }
                 },

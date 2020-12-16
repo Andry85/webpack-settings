@@ -1,2 +1,5 @@
 import '../sass/main.scss';
-import Main from './main.js';
+// import './main.js';
+// import './es6.js';
+// import './canvas.js';
+import './slider.js';
