@@ -49,6 +49,7 @@ module.exports = (env = {}) => {
               }
           },
           sprite: {
+              prefix: false,
               generate: {
                   // Generate <use> tags within the spritemap as the <view> tag will use this
                   use: true,
