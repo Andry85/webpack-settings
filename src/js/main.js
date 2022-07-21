@@ -1,8 +1,2 @@
-
-import $ from 'jquery';
-
-$('body').addClass('jquery-added');
-
-
-
-
+import '../sass/main.scss';
+import './blocks/header/header';

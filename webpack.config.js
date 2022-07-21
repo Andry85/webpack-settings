@@ -3,12 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 var ManifestPlugin = require('webpack-manifest-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const SVGSpritemapPlugin = require('svg-spritemap-webpack-plugin');
-const autoprefixer = require('autoprefixer');
-const TerserJSPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-
 
 
 
@@ -34,28 +29,13 @@ module.exports = (env = {}) => {
   }
 
   return { 
-    optimization: {
-      splitChunks: {
-        // include all types of chunks
-        chunks: 'all',
-        cacheGroups: {
-          defaultVendors: {
-            filename: 'js/[name].bundle.js'
-          }
-        }
-      },
-      minimize: true,
-      minimizer: [new TerserJSPlugin({
-        sourceMap: true,
-      }), new OptimizeCSSAssetsPlugin({})],
-    },
     mode: isProd ? 'production' : isDev && 'development',
     devtool: 'inline-source-map',
     entry: {
-          index: './src/js/index.js',
+          index: './src/js/main.js',
     },
     output: {
-      filename: 'js/[name].[contenthash].js',
+      filename: 'js/main.js',
       path: path.resolve(__dirname, 'dist'),
     },
     plugins: [
@@ -90,17 +70,9 @@ module.exports = (env = {}) => {
               filename: path.join(__dirname, 'src/sass/_sprites.scss')
           }
       }),
-      new CopyPlugin({
-        patterns: [
-          {
-            from: 'src/inc',
-            to: 'inc',
-          }
-        ],
-      }),
       new MiniCssExtractPlugin(
         {
-          filename: isDev ? 'css/[name].css' : 'css/[name].[hash].css',
+          filename: isDev ? 'css/main.css' : 'css/main.css',
         }
       ),
       new ManifestPlugin(),
@@ -112,12 +84,6 @@ module.exports = (env = {}) => {
         minify: false,
         hash: true
       }), // Generates default index.html
-      new HtmlWebpackPlugin({
-        filename: 'contacts.html',
-        template: 'src/contacts.html',
-        minify: false,
-        hash: true
-      }),
     ],
     devServer: {
       open: true,

@@ -1,6 +1,6 @@
 $sprites: (
     'arrow': "/images/svgsprite.svg#sprite-arrow-fragment",
-    'close': "/images/svgsprite.svg#sprite-close-fragment"
+    'external-link-line': "/images/svgsprite.svg#sprite-external-link-line-fragment"
 );
 
 $sizes: (
@@ -8,9 +8,9 @@ $sizes: (
         'width': 9px,
         'height': 16px
     ),
-    'close': (
-        'width': 14px,
-        'height': 14px
+    'external-link-line': (
+        'width': 16px,
+        'height': 16px
     )
 );
 

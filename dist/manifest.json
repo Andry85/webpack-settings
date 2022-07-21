@@ -1,0 +1,7 @@
+{
+  "index.css": "css/main.css",
+  "index.js": "js/main.js",
+  "spritemap.js": "js/1.main.js",
+  "spritemap.svg": "images/svgsprite.svg",
+  "index.html": "index.html"
+}

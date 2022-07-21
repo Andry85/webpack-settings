@@ -1,18 +1,10 @@
-@import 'colors';
-@import 'fonts';
-@import 'reset';
+@import 'variables';
 @import 'sprites';
 @import 'breakpoints';
 
-html {
-    font-size: 62.5%;
-}
 
 body {
-    background: $body;
-    font-size: 1.6rem;
-    font-family: 'Roboto';
-    color: $text;
+    background: red;
 }
 
 
